@@ -22,10 +22,6 @@ out/
 # =====================
 # Environment files
 # =====================
-.env
-.env.*
-**/.env
-**/.env.*
 
 # keep example env files
 !.env.example
@@ -48,7 +44,6 @@ Thumbs.db
 # =====================
 # IDE / Editor
 # =====================
-.vscode/
 .idea/
 
 # =====================
@@ -63,3 +58,4 @@ pnpm-debug.log*
 # Docker (optional)
 # =====================
 docker-compose.override.yml
+config.bat
