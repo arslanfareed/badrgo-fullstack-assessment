@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: wallet_db
+    environment:
+      POSTGRES_USER: wallet
+      POSTGRES_PASSWORD: wallet
+      POSTGRES_DB: wallet_portal
+    ports:
+      - '5432:5432'
+    volumes:
+      - wallet_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U wallet -d wallet_portal']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    container_name: wallet_backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      API_PREFIX: api/v1
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USERNAME: wallet
+      DB_PASSWORD: wallet
+      DB_NAME: wallet_portal
+      DB_RUN_MIGRATIONS: 'true'
+      CORS_ORIGIN: http://localhost:3001
+    ports:
+      - '3000:3000'
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Browser calls the API directly on the host-published backend port.
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:3000/api/v1
+    container_name: wallet_frontend
+    depends_on:
+      - backend
+    ports:
+      - '3001:3001'
+
+volumes:
+  wallet_pgdata:
